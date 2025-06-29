@@ -1,0 +1,134 @@
+using Honor_Engine.Honor_Engine;
+using Honor_Engine.Honor_Engine.Animation;
+using Honor_Engine.Honor_Engine.Hui;
+using Honor_Engine.Honor_Engine.Physics_Engine;
+using Honor_Engine.Honor_Engine.Systems;
+using Honor_Engine.Honor_Engine.Util;
+using Honor_Engine.Honor_Engine.Effects;
+using Honor_Engine.Honor_Engine.Custom;
+using Honor_Engine.Honor_Engine.Audio;
+using Honor_Engine.Honor_Engine.Managers;
+using Honor_Engine.Honor_Engine.Output;
+using Honor_Engine.Honor_Engine.Components.Renderer.GLSL;
+
+namespace Honor_Engine
+{
+    public class Tester : Honor_Engine.Honor_Engine
+    {
+        public Tester() : base(new Vector2(1280, 720), "Tester", false, false) { }
+
+        bool up = false;
+
+        private Vector2 pos = new Vector2(0, 0);
+        private float movSpeed = 3f;
+
+        GameObject player, platform;
+        Restricted health;
+
+        private bool inputW;
+
+        public override void OnLoad()
+        {
+            BackgroundColor = Color.CornflowerBlue;
+            camZoom = 1f;
+            targetFramerate = 1000;
+            layers.Add(new Layer("Gui"));
+
+            player = new GameObject("Player");
+            player.tag = "Player";
+            player.transform.pos = new Vector2(-400, -300);
+            player.transform.scl = new Vector2(64, 64);
+            player.addComponent(new SpriteSheet());
+
+            Animation idle = new Animation("Idle", 0.1f);
+            idle.AddSheet(@"Sprites\Sheet\Samuri\Idle\Idle 1.png", 0);
+            idle.AddSheet(@"Sprites\Sheet\Samuri\Idle\Idle 2.png", 1);
+            idle.AddSheet(@"Sprites\Sheet\Samuri\Idle\Idle 3.png", 2);
+            idle.AddSheet(@"Sprites\Sheet\Samuri\Idle\Idle 4.png", 3);
+            idle.AddSheet(@"Sprites\Sheet\Samuri\Idle\Idle 5.png", 4);
+            idle.AddSheet(@"Sprites\Sheet\Samuri\Idle\Idle 6.png", 5);
+            player.GetComponent<SpriteSheet>().Animations.Add(idle);
+
+            Animation running = new Animation("Running", 0.05f);
+            running.AddSheet(@"Sprites\Sheet\Samuri\Running\Running 1.png", 0);
+            running.AddSheet(@"Sprites\Sheet\Samuri\Running\Running 2.png", 1);
+            running.AddSheet(@"Sprites\Sheet\Samuri\Running\Running 3.png", 2);
+            running.AddSheet(@"Sprites\Sheet\Samuri\Running\Running 4.png", 3);
+            running.AddSheet(@"Sprites\Sheet\Samuri\Running\Running 5.png", 4);
+            running.AddSheet(@"Sprites\Sheet\Samuri\Running\Running 6.png", 5);
+            player.GetComponent<SpriteSheet>().Animations.Add(running);
+
+            platform = new GameObject("platform");
+            platform.transform.pos = new Vector2(-500, 300);
+            platform.transform.scl = new Vector2(200, 100);
+            platform.addComponent(new Sprite2D());
+
+            Gizmos.Circle(Color.Green, player.transform.vertices()[0], 10f);
+        }
+
+        public override void OnDraw()
+        {
+
+        }
+        public override void OnUpdate(float deltaTime)
+        {
+            Log.Alert("Hello World!");
+
+            platform.transform.pos = ortho;
+
+            if (Honor_Engine.Math.Distance(enemy.transform.pos, player.transform.pos) > player.transform.scl.x)
+            {
+                enemy.transform.pos += Vector2.MoveTo(enemy.transform.pos, player.transform.pos, 100f * deltaTime);
+            }
+
+            GameObject c = coin.GetComponent<CircleCollision>().OnCollision();
+            if (c != null)
+            {
+                Log.Alert("Coin is Hiting : " +  c.tag);
+            }
+
+            if (inputW)
+            {
+                camPos.y += 512f * deltaTime;
+            }
+
+            if (up)
+            {
+                player.GetComponent<Rigidbody>().AddForce(new Vector2(0, -10));
+            }
+        }
+
+        public override void GetKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.W)
+            {
+                up = true;
+            }
+        }
+
+        public override void GetKeyUp(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.W)
+            {
+                up = false;
+            }
+        }
+
+        public override void GetMouseDown(MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                mosRight = true;
+            }
+        }
+
+        public override void GetMouseUp(MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                mosRight = false;
+            }
+
+        }
+    }
+}
